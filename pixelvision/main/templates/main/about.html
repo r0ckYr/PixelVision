@@ -1,0 +1,42 @@
+{% extends 'main/base.html' %} 
+{% block title %}About Us{% endblock %} 
+
+{% block content %}
+<style>
+    body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; /* Background color */
+        }
+        .container1 {
+            margin-top: 50px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff; /* Container background color */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #333;
+        }
+</style>
+<div class="container mt-5">
+    <div class="jumbotron">
+        <h2 class="display-4">About Us</h2>
+        <p class="lead">The PixelVision project is a user-friendly web application designed to facilitate medical image classification. Harnessing the power of Django, a robust Python web framework, this initiative focuses on performing image recognition and classification tasks within the realm of medical diagnostics. The primary objective of the PixelVision project is to offer an easily accessible platform for users to upload medical images and promptly receive real-time classification results.</p>
+    </div>
+
+    <div class="container">
+        <h4 class="mt-4">Our Mission</h4>
+        <p>Our mission is to provide accurate and timely image classification results to help users make informed decisions about their health. We are committed to utilizing the latest advancements in artificial intelligence to make this possible.</p>
+
+        <h4 class="mt-4">Meet Our Team</h4>
+        <p>We are a dedicated team of professionals with expertise in medical imaging and machine learning. Our team works tirelessly to ensure the accuracy and reliability of our image classification and diagnosis services.</p>
+
+        <h4 class="mt-4">Contact Us</h4>
+        <p>If you have any questions or feedback, please feel free to contact us at <a href="mailto:shraddharana759@pixelvision">shraddharana759@gmail.com</a>.</p>
+    </div>
+</div>
+
+{% endblock %}

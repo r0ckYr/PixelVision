@@ -1,0 +1,267 @@
+{% extends 'main/base.html' %} 
+{% block title %}Home{% endblock %} 
+
+{% block content %}
+
+
+    <style>
+        body {
+            text-align: center;
+            background-color: #f0f0f0; /* Background color */
+        }
+        .container1 {
+            margin-top: 50px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff; /* Container background color */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #333;
+        }
+        .instructions {
+            margin-bottom: 20px;
+        }
+        .file-upload {
+            padding: 10px;
+            border: 2px dashed #ccc;
+            background-color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .file-upload:hover {
+            background-color: #e0e0e0;
+        }
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        button[type="button"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button[type="button"]:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 5px;
+            display: none;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .predicted-class {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .result {
+            font-weight: bold;
+            color: #009900;
+        }
+        .error-message {
+            color: red;
+        }
+        .loading {
+            text-align: center;
+            display: none;
+        }
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: none;
+        }
+        #loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ccc;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+        <script>
+            function showLoadingScreen() {
+                document.getElementById('loading-screen').style.display = 'block';
+            }
+    
+            function hideLoadingScreen() {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+            }
+        </script>
+
+
+<div class="container1 col-md-5 my-5">
+    <h1>Upload and Classify Image</h1>
+    <div class="instructions">
+        <p>Choose an image file to upload, and we will classify it for you.</p>
+    </div>
+    <form method="post" enctype="multipart/form-data" id="image-upload-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <label for="image" class="file-upload">
+            <input type="file" id="image" name="ImageFile" accept="image/*">
+            Select Image
+        </label>
+        <p id="selected-file-info" style="display: none;"></p>
+        <button type="button" onclick="processImage()">Upload and Classify</button>
+    </form>
+    <div class="results" id="results-container">
+        
+        <h2>Classification Results:</h2>
+        <p class="predicted-class" id="predicted-class"></p>
+        <p class="result" id="result"></p>
+        <p class="error-message" id="error-message"></p>
+    </div>
+    <div id="loading-screen" class="loading">
+        <div id="loading-spinner"></div>
+    </div>
+</div>
+    <div class="conatiner row">
+        <div class="container1 my-5">
+            <h2>Instructions</h2>
+            <ul class="list-group list-group-numbered" style="text-align: left;">
+                <li class="list-group-item">Click "Select Image": Select this option to begin.</li>
+                <li class="list-group-item">Choose Your Image: Pick the image you want to classify.</li>
+                <li class="list-group-item">Wait for Result: The website will process your image.</li>
+                <li class="list-group-item">See the Diagnosis: Discover the image's type and disease status.</li>
+            </ul>
+        </div>
+        <div class="container1 my-5">
+            <h2>Features</h2>
+            <ul class="list-group" style="text-align: left;">
+                <li class="list-group-item">Easy Image Upload: Quickly upload your image.</li>
+                <li class="list-group-item">Automatic Model Selection: We pick the right model for you.</li>
+                <li class="list-group-item">Diagnosis Result: Find out what the image shows.</li>
+                <li class="list-group-item">User-Friendly: Simple and easy to use.</li>
+            </ul>
+        </div>
+        <div class="container1 my-5">
+            <h2>FAQs</h2>
+            <ol class="list-group list-group-flush">
+                <li class="list-group-item" data-toggle="collapse" data-target="#q1">
+                    How do I upload an image?
+                </li>
+                <div id="q1" class="collapse">
+                    <div class="card card-body">
+                        To upload an image, simply click the "Upload" button, select your image file, and wait for the results.
+                    </div>
+                </div>
+                
+                <li class="list-group-item" data-toggle="collapse" data-target="#q2">
+                    How does the website choose the model?
+                </li>
+                <div id="q2" class="collapse">
+                    <div class="card card-body">
+                        The website selects the model based on the initial image classification, ensuring the most suitable model is used for analysis.
+                    </div>
+                </div>
+                <li class="list-group-item question" data-toggle="collapse" data-target="#q3">
+                    Can I upload multiple images at once?
+                </li>
+                <div id="q3" class="collapse answer">
+                    Currently, our system supports the upload of one image at a time for accurate analysis.
+                </div>
+                
+                <li class="list-group-item question" data-toggle="collapse" data-target="#q4">
+                    How long does it take to get the results?
+                </li>
+                <div id="q4" class="collapse answer">
+                    The processing time may vary depending on the complexity of the image and our server load, but it usually takes just a few moments.
+                </div>
+                
+                <li class="list-group-item question" data-toggle="collapse" data-target="#q5">
+                    Is my uploaded data secure and private?
+                </li>
+                <div id="q5" class="collapse answer">
+                    Yes, we prioritize the security and privacy of your data. We do not store or share your uploaded images or personal information.
+                </div>
+                
+                <!-- Add more questions and answers using the same structure -->
+            </ol>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Show selected file information
+        document.getElementById('image').addEventListener('change', function() {
+            var selectedFile = this.files[0];
+            if (selectedFile) {
+                document.getElementById('selected-file-info').textContent = 'Selected file: ' + selectedFile.name;
+                document.getElementById('selected-file-info').style.display = 'block';
+            } else {
+                document.getElementById('selected-file-info').textContent = '';
+                document.getElementById('selected-file-info').style.display = 'none';
+            }
+        });
+
+        function processImage() {
+            var form = document.getElementById('image-upload-form');
+            var formData = new FormData(form);
+            // Show loading screen
+            // document.getElementById('loading-screen').style.display = 'block';
+            showLoadingScreen()
+            $.ajax({
+                type: 'POST',
+                url: '/upload/',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    var resultsContainer = document.getElementById('results-container');
+                    var predictedClass = document.getElementById('predicted-class');
+                    var result = document.getElementById('result');
+                    var errorMessage = document.getElementById('error-message');
+
+                    if (data.predicted_class && data.result) {
+                        
+                        predictedClass.textContent = 'Predicted class: ' + data.predicted_class;
+                        if(data.result > 0.5)
+                        {
+                            result.textContent = 'Result: ' + 'Positive';
+                            result.style.color = 'red';
+                        }
+                        else
+                        {
+                            result.textContent = 'Result: ' + 'Negative';
+                            result.style.color = 'green';
+                        }
+                        errorMessage.textContent = '';
+                        resultsContainer.style.display = 'block';
+                    } else {
+                        predictedClass.textContent = '';
+                        result.textContent = '';
+                        errorMessage.textContent = 'Error: ' + data.error;
+                        resultsContainer.style.display = 'block';
+                    }
+                    // Hide loading screen
+                    // document.getElementById('loading-screen').style.display = 'none';
+                    hideLoadingScreen()
+                },
+                dataType: 'json'
+            });
+        }
+    </script>
+{% endblock %}

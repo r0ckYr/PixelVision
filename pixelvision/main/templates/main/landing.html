@@ -1,0 +1,108 @@
+{% extends 'main/base.html' %} 
+{% block title %}Welcome to Medical Image Classification{% endblock %} 
+
+{% block content %}
+<style>
+    body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0; /* Background color */
+        }
+        .container1 {
+            margin-top: 50px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff; /* Container background color */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #333;
+        }
+</style>
+<div class="container mt-5">
+    <div class="jumbotron text-center">
+        <h1 class="display-4">Medical Image Classification</h1>
+        <p class="lead">Accurate Image Classification and Disease Diagnosis</p>
+        <hr class="my-4">
+        <p class="lead">Upload your medical images and get instant, reliable diagnoses using state-of-the-art AI technology.</p>
+        <a class="btn btn-primary btn-lg" href="/signup" role="button">Get Started</a>
+    </div>
+
+    <div class="container my-5">
+        <h3 class="display-4">How It Works</h3>
+        <p class="lead">Our advanced deep learning models can identify the type of medical image you upload and determine if it indicates a positive or negative result for a specific condition.</p>
+
+        <h3 class="display-4 my-5">Why Choose Us</h3>
+        <p class="lead">Our team of experts is committed to providing you with accurate and timely results. Your health is our top priority.</p>
+    </div>
+</div>
+<div class="conatiner row">
+    <div class="container1 my-5">
+        <h2>Instructions</h2>
+        <ul class="list-group list-group-numbered" style="text-align: left;">
+            <li class="list-group-item">Click "Select Image": Select this option to begin.</li>
+            <li class="list-group-item">Choose Your Image: Pick the image you want to classify.</li>
+            <li class="list-group-item">Wait for Result: The website will process your image.</li>
+            <li class="list-group-item">See the Diagnosis: Discover the image's type and disease status.</li>
+        </ul>
+    </div>
+    <div class="container1 my-5">
+        <h2>Features</h2>
+        <ul class="list-group" style="text-align: left;">
+            <li class="list-group-item">Easy Image Upload: Quickly upload your image.</li>
+            <li class="list-group-item">Automatic Model Selection: We pick the right model for you.</li>
+            <li class="list-group-item">Diagnosis Result: Find out what the image shows.</li>
+            <li class="list-group-item">User-Friendly: Simple and easy to use.</li>
+        </ul>
+    </div>
+    <div class="container1 my-5">
+        <h2>FAQs</h2>
+        <ol class="list-group list-group-flush">
+            <li class="list-group-item" data-toggle="collapse" data-target="#q1">
+                How do I upload an image?
+            </li>
+            <div id="q1" class="collapse">
+                <div class="card card-body">
+                    To upload an image, simply click the "Upload" button, select your image file, and wait for the results.
+                </div>
+            </div>
+            
+            <li class="list-group-item" data-toggle="collapse" data-target="#q2">
+                How does the website choose the model?
+            </li>
+            <div id="q2" class="collapse">
+                <div class="card card-body">
+                    The website selects the model based on the initial image classification, ensuring the most suitable model is used for analysis.
+                </div>
+            </div>
+            <li class="list-group-item question" data-toggle="collapse" data-target="#q3">
+                Can I upload multiple images at once?
+            </li>
+            <div id="q3" class="collapse answer">
+                Currently, our system supports the upload of one image at a time for accurate analysis.
+            </div>
+            
+            <li class="list-group-item question" data-toggle="collapse" data-target="#q4">
+                How long does it take to get the results?
+            </li>
+            <div id="q4" class="collapse answer">
+                The processing time may vary depending on the complexity of the image and our server load, but it usually takes just a few moments.
+            </div>
+            
+            <li class="list-group-item question" data-toggle="collapse" data-target="#q5">
+                Is my uploaded data secure and private?
+            </li>
+            <div id="q5" class="collapse answer">
+                Yes, we prioritize the security and privacy of your data. We do not store or share your uploaded images or personal information.
+            </div>
+            
+            <!-- Add more questions and answers using the same structure -->
+        </ol>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}

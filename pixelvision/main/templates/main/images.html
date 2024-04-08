@@ -1,0 +1,113 @@
+{% extends 'main/base.html' %} 
+{% block title %}Images{% endblock %} 
+
+{% block content %}
+    <style>
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 5px;
+            display: none;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        .predicted-class {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .result {
+            font-weight: bold;
+            color: #009900;
+        }
+        .loading {
+            text-align: center;
+            display: none;
+        }
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: none;
+        }
+        #loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ccc;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        function showLoadingScreen() {
+            document.getElementById('loading-screen').style.display = 'block';
+        }
+
+        function hideLoadingScreen() {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+
+    <div class="container">
+        <h1 class="mt-4">Your Uploaded Images</h1>
+
+        <div class="mt-4">
+            <div class="row">
+                {% if combined_data %}
+                    {% for data in combined_data %}
+                        <div class="col-lg-4 mb-4">
+                            <div class="card">
+                                <img src="{{ data.image.ImageFile.url }}" alt="{{ data.image.FileName }}"
+                                     class="card-img-top" style="max-height: 10rem;">
+                                <div class="card-body">
+                                    <p class="card-title p">{{ data.image.FileName }}</p>
+                                    <p class="predicted-class" id="predicted-class">Predicted Class: {{ data.recognition_result.Labels }}</p>
+                                    <p class="result" id="result">Result: 
+                                        {% if data.recognition_result.ConfidenceScores > 0.5 %}
+                                            Positive
+                                        {% else %}
+                                            Negative
+                                        {% endif %}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <form method="post" class="mt-2 ms-0" action="{% url 'process_image' data.image.ImageID %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary" onclick="showLoadingScreen()">Classify</button>
+                                        </form>
+                                        <form method="post" class="mt-2 ms-0" action="{% url 'delete_image' data.image.ImageID %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Delete Image</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>You haven't uploaded any images yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="container my-4">
+        <a class="btn btn-primary" href="/">Upload a new image</a>
+    </div>
+
+    <div id="loading-screen" class="loading">
+        <div id="loading-spinner"></div>
+    </div>
+{% endblock %}

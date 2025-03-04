@@ -3,3 +3,6 @@ Django
 django-crispy-forms
 keras
 Pillow
+tensorflow-cpu
+ultralytics
+pytorch

@@ -1,6 +1,8 @@
 # PixelVision
 The PixelVision project is a user-friendly medical image classification web application that leverages the capabilities of Django, a high-level Python web framework, a containerization platform, to perform image recognition/classification tasks. The project aims to provide an accessible platform for users to upload images and receive real-time recognition results.
 
+![Website look](image.png)
+
 # Running the Project
 Follow these steps to set up and run the project:
 
@@ -65,6 +67,5 @@ If you encounter issues installing PyTorch, visit the official installation guid
 
 [Install PyTorch](https://pytorch.org/get-started/locally/)
 
-![Website look](image.png)
 
 

@@ -1,6 +1,0 @@
-crispy-bootstrap5
-Django
-django-crispy-forms
-keras
-Pillow
-tensorflow-cpu

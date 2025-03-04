@@ -61,16 +61,11 @@ def upload_image(request):
             image.FilePath = image.ImageFile.url
             image.UserID = request.user
             image.save()
-            predicted_class, result = classify_image(image.ImageFile.url)
+            predicted_class, result, mask_img = classify_image(image.ImageFile.url)
             result = float(result)
 
-            recognition_result = RecognitionResult.objects.create(
-                ImageID=image,
-                Labels=predicted_class,
-                ConfidenceScores=result
-            )
 
-            return JsonResponse({'predicted_class': predicted_class, 'result':result})
+            return JsonResponse({'predicted_class': predicted_class, 'result':result, 'mask_img': mask_img})
         else:
             return JsonResponse({'error': 'Invalid image upload'})
     else:

@@ -19,6 +19,16 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
+        .container2 {
+            margin-top: 50px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #fff; /* Container background color */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
         h1 {
             color: #333;
         }
@@ -127,17 +137,28 @@
         <p id="selected-file-info" style="display: none;"></p>
         <button type="button" onclick="processImage()">Upload and Classify</button>
     </form>
-    <div class="results" id="results-container">
-        
+        <div id="loading-screen" class="loading">
+        <div id="loading-spinner"></div>
+    </div>
+
+</div>
+    <div class="results container2 col-md-5 my-5" id="results-container">
         <h2>Classification Results:</h2>
         <p class="predicted-class" id="predicted-class"></p>
         <p class="result" id="result"></p>
         <p class="error-message" id="error-message"></p>
+        <div class="image-container" style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+            <div>
+                <h3>Original Image</h3>
+                <img id="original-image" src="" alt="Original Image" style="max-width: 300px; border: 1px solid #ccc; border-radius: 5px;">
+            </div>
+            <div>
+                <h3>Segmented Image</h3>
+                <img id="mask-image" src="" alt="Mask Image" style="max-width: 300px; border: 1px solid #ccc; border-radius: 5px;">
+            </div>
+        </div>
     </div>
-    <div id="loading-screen" class="loading">
-        <div id="loading-spinner"></div>
-    </div>
-</div>
+
     <div class="conatiner row">
         <div class="container1 my-5">
             <h2>Instructions</h2>
@@ -234,31 +255,41 @@
                     var predictedClass = document.getElementById('predicted-class');
                     var result = document.getElementById('result');
                     var errorMessage = document.getElementById('error-message');
+                    var originalImage = document.getElementById('original-image');
+                    var maskImage = document.getElementById('mask-image');
 
-                    if (data.predicted_class && data.result) {
-                        
+                    if (data.predicted_class && data.result && data.mask_img) {
                         predictedClass.textContent = 'Predicted class: ' + data.predicted_class;
-                        if(data.result > 0.5)
-                        {
-                            result.textContent = 'Result: ' + 'Positive';
+                        if (data.result > 0.5) {
+                            result.textContent = 'Result: Positive';
                             result.style.color = 'red';
-                        }
-                        else
-                        {
-                            result.textContent = 'Result: ' + 'Negative';
+                        } else {
+                            result.textContent = 'Result: Negative';
                             result.style.color = 'green';
                         }
+
+                        // Set original image (get it from uploaded file)
+                        var inputFile = document.getElementById('image').files[0];
+                        if (inputFile) {
+                            var reader = new FileReader();
+                            reader.onload = function(e) {
+                                originalImage.src = e.target.result;
+                            };
+                            reader.readAsDataURL(inputFile);
+                        }
+
+                        // Set mask image (base64 received from server)
+                        maskImage.src = 'data:image/png;base64,' + data.mask_img;
+
                         errorMessage.textContent = '';
                         resultsContainer.style.display = 'block';
                     } else {
                         predictedClass.textContent = '';
                         result.textContent = '';
-                        errorMessage.textContent = 'Error: ' + data.error;
+                        errorMessage.textContent = 'Error: ' + (data.error || 'Unexpected error');
                         resultsContainer.style.display = 'block';
                     }
-                    // Hide loading screen
-                    // document.getElementById('loading-screen').style.display = 'none';
-                    hideLoadingScreen()
+                    hideLoadingScreen();
                 },
                 dataType: 'json'
             });

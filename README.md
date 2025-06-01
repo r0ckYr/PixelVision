@@ -1,4 +1,4 @@
-# PixelVision
+# PixelVision - Installation Guide
 
 PixelVision is a medical image classification web application that leverages Django backend with a modern React/Next.js frontend. The platform uses advanced machine learning models to provide real-time medical image analysis with high accuracy and intuitive user experience.
 
@@ -19,6 +19,7 @@ PixelVision is a medical image classification web application that leverages Dja
 - TensorFlow/PyTorch for machine learning inference
 - SQLite for development, PostgreSQL for production
 - OpenCV and PIL for image processing
+- Ollama for AI chat functionality
 
 **Frontend:**
 - Next.js 14+ with TypeScript
@@ -26,83 +27,81 @@ PixelVision is a medical image classification web application that leverages Dja
 - Tailwind CSS for styling
 - Custom React hooks for state management
 
-## Project Structure
+## Prerequisites
 
-```
-pixelvision/
-├── pixelvision/          # Django backend
-│   ├── apps/            # Django applications
-│   ├── models/          # ML models (after setup)
-│   ├── static/          # Static files
-│   └── settings.py      # Django configuration
-├── client/              # Next.js frontend
-│   ├── src/
-│   │   ├── components/  # React components
-│   │   ├── pages/       # Next.js pages
-│   │   └── styles/      # CSS files
-│   ├── package.json     # Node dependencies
-│   └── tsconfig.json    # TypeScript config
-└── requirements.txt     # Python dependencies
+- Python 3.8 or higher
+- Node.js 18 or higher
+- Git for version control
+- Ollama (for AI chat functionality)
+
+## Installation Steps
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd PixelVision
 ```
 
-## Backend Setup
+### 2. Backend Setup
 
-1. Create a virtual environment and activate it:
+#### Create Virtual Environment
 ```bash
 python3 -m venv env
-source env/bin/activate
+source env/bin/activate  # On Windows: env\Scripts\activate
 ```
 
-2. Install Python dependencies:
+#### Install Dependencies
 ```bash
 pip install -r requirements.txt
+pip install torch torchvision torchaudio  # Install PyTorch
 ```
 
-3. Set up the machine learning models:
-   - Download models.zip from: https://drive.google.com/file/d/1vpOEze2-kcl-hDrF6oBI3TGl3LVfM20X/view?usp=sharing
-   - Extract the contents:
+#### Set up Ollama (AI Chat Assistant)
+1. Install Ollama from: https://ollama.ai/
+2. Run the Phi model (or any model of your choice):
 ```bash
-unzip models.zip
-mv models pixelvision/
+ollama run phi
 ```
+The model should be running on `http://localhost:11434/api/generate`
 
-4. Navigate to the Django project and start the server:
+#### Database Setup
+Navigate to the Django project directory and run migrations:
 ```bash
 cd pixelvision
+python3 manage.py migrate
+```
+
+#### Start Backend Server
+```bash
 python3 manage.py runserver
 ```
+The backend will be available at `http://localhost:8000`
 
-The backend will be available at http://localhost:8000
+### 3. Frontend Setup
 
-## Frontend Setup
-
-1. Navigate to the client directory:
+#### Navigate to Client Directory
 ```bash
-cd client
+cd client  # From the root PixelVision directory
 ```
 
-2. Install Node.js dependencies:
+#### Install Dependencies
 ```bash
 npm install
 ```
 
-3. Create environment configuration:
+#### Environment Configuration
+Create a `.env.local` file in the client directory:
 ```bash
-cp .env.example .env.local
-```
-
-4. Configure the environment variables in .env.local:
-```
+# .env.local
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
 ```
 
-5. Start the development server:
+#### Start Frontend Server
 ```bash
 npm run dev
 ```
-
-The frontend will be available at http://localhost:3000
+The frontend will be available at `http://localhost:3000`
 
 ## Available Frontend Commands
 
@@ -112,11 +111,41 @@ The frontend will be available at http://localhost:3000
 - `npm run lint` - Run code linting
 - `npm run type-check` - Check TypeScript types
 
-## Prerequisites
+## Project Structure
 
-- Python 3.8 or higher
-- Node.js 18 or higher
-- Git for version control
+```
+PixelVision/
+├── client/              # Next.js frontend
+│   ├── src/
+│   │   └── app/
+│   │       ├── components/  # React components
+│   │       ├── about/       # About page
+│   │       ├── contact/     # Contact page
+│   │       ├── dashboard/   # Dashboard page
+│   │       ├── features/    # Features page
+│   │       ├── images/      # Image analysis page
+│   │       ├── login/       # Login page
+│   │       ├── pricing/     # Pricing page
+│   │       ├── profile/     # User profile page
+│   │       └── signup/      # Sign up page
+│   ├── package.json     # Node dependencies
+│   └── tsconfig.json    # TypeScript config
+├── pixelvision/         # Django backend
+│   ├── main/           # Main Django app
+│   ├── brain_tumor/    # Brain tumor detection module
+│   ├── lung_cancer/    # Lung cancer detection module
+│   ├── bone_fracture/  # Bone fracture detection module
+│   ├── test_images/    # Sample test images
+│   └── manage.py       # Django management script
+└── requirements.txt    # Python dependencies
+```
+
+## Testing the Application
+
+The project includes sample test images in `pixelvision/test_images/` for testing different medical conditions:
+- Brain tumor detection: `tumor1.jpg`, `tumor.jpg`, `no_tumor.png`
+- Lung cancer detection: `lung_cancer1.png`, `lung_cancer2.png`, `no_lung_cancer.png`
+- Bone fracture detection: `bone_fracture.jpg`, `bone_fracture2.jpg`, `no_fracture.jpg`
 
 ## Production Deployment
 
@@ -132,21 +161,11 @@ npm run build
 npm start
 ```
 
-## Environment Configuration
+## Troubleshooting
 
-**Backend (.env):**
-```
-DEBUG=False
-SECRET_KEY=your-production-secret-key
-DATABASE_URL=postgresql://user:pass@localhost/dbname
-ALLOWED_HOSTS=yourdomain.com
-```
-
-**Frontend (.env.local):**
-```
-NEXT_PUBLIC_BACKEND_URL=https://api.yourdomain.com
-NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api
-```
+1. **Ollama Connection Issues**: Ensure Ollama is running and accessible at `http://localhost:11434/api/generate`
+2. **Frontend/Backend Communication**: Verify that `NEXT_PUBLIC_BACKEND_URL` in `.env.local` matches your Django server URL
+3. **Missing Dependencies**: Make sure all Python and Node.js dependencies are installed correctly
 
 ## Support
 
@@ -157,4 +176,4 @@ For technical support and inquiries:
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License.

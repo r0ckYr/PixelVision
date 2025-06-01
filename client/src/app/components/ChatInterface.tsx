@@ -6,6 +6,8 @@ interface ChatInterfaceProps {
     diagnosisInfo: {
         predictedClass: string
         result: string
+        confidence: number
+        processingTime: number
     }
 }
 
@@ -29,19 +31,14 @@ export default function ChatInterface({ diagnosisInfo }: ChatInterfaceProps) {
     const [error, setError] = useState('')
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }
-
-    useEffect(() => {
-    }, [messages])
-
     useEffect(() => {
         if (isOpen && messages.length === 1) {
             const contextMessage = `Based on your medical scan analysis:
             
 📋 **Image Classification:** ${diagnosisInfo.predictedClass}
 🔬 **Diagnosis Result:** ${diagnosisInfo.result}
+📊 **Confidence Score:** ${(diagnosisInfo.confidence * 100).toFixed(1)}%
+⏱️ **Processing Time:** ${diagnosisInfo.processingTime}s
 
 I'm here to help you understand these results better. You can ask me about:
 • What these results mean
@@ -59,6 +56,30 @@ How can I assist you today?`
         }
     }, [isOpen, diagnosisInfo])
 
+    const createPrompt = (userMessage: string) => {
+        const systemPrompt = `You are a medical AI assistant for image classification results. Be concise, helpful, and professional.
+
+CLASSIFICATION RESULTS:
+• Diagnosis: ${diagnosisInfo.predictedClass}
+• Result: ${diagnosisInfo.result}
+• Confidence: ${(diagnosisInfo.confidence * 100).toFixed(1)}%
+• Processing Time: ${diagnosisInfo.processingTime}s
+
+RESPONSE GUIDELINES:
+- Keep answers SHORT (2-3 sentences max)
+- Use simple, non-technical language
+- Be direct and to the point
+- Always end with "Consult your doctor for medical advice"
+- Focus only on what's asked
+- Avoid lengthy explanations unless specifically requested
+
+USER QUESTION: ${userMessage}
+
+BRIEF ANSWER:`
+
+        return systemPrompt
+    }
+
     const sendMessage = async () => {
         if (!inputValue.trim() || isTyping) return
 
@@ -75,16 +96,21 @@ How can I assist you today?`
         setIsTyping(true)
 
         try {
+            // Create the full prompt with context
+            const fullPrompt = createPrompt(userMessage)
+
             const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    question: userMessage,
+                    question: fullPrompt, // Send the full prompt instead of just the user message
                     context: {
                         predictedClass: diagnosisInfo.predictedClass,
-                        result: diagnosisInfo.result
+                        result: diagnosisInfo.result,
+                        confidence: diagnosisInfo.confidence,
+                        processingTime: diagnosisInfo.processingTime
                     }
                 }),
                 credentials: 'include',
@@ -208,7 +234,7 @@ How can I assist you today?`
                 className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center space-x-3"
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
                 <span>Chat with AI Assistant</span>
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -237,6 +263,7 @@ How can I assist you today?`
                                 <div className="text-right mr-4">
                                     <p className="text-sm text-blue-100">Analysis Results</p>
                                     <p className="text-xs text-blue-200">{diagnosisInfo.predictedClass}</p>
+                                    <p className="text-xs text-blue-200">{(diagnosisInfo.confidence * 100).toFixed(1)}% confidence</p>
                                 </div>
                                 <button
                                     onClick={() => setIsOpen(false)}

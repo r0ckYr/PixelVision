@@ -14,8 +14,9 @@ from django.shortcuts import get_object_or_404
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from image_classification import classify_image
 from PIL import Image as PILImage
+
+from image_classification import classify_image
 
 from .forms import ImageUploadForm, RegisterForm, UpdateProfileForm
 from .models import Image, RecognitionResult
@@ -366,11 +367,11 @@ def process_image(request, image_id):
         return JsonResponse({"error": str(e)}, status=500)
 
 
-# Chat functionality
+# Alternative streaming function for even smoother word-by-word streaming
 @csrf_exempt
 @require_http_methods(["POST"])
 def chat_with_phi(request):
-    """Handle AI chat requests with streaming response"""
+    """Handle AI chat requests with character-level streaming for smoother effect"""
     try:
         data = json.loads(request.body)
         question = data.get("question")
@@ -388,7 +389,7 @@ Response:"""
         payload = {
             "model": "phi",
             "prompt": prompt,
-            "max_tokens": 150,  # Increased for more comprehensive responses
+            "max_tokens": 150,
             "stream": True,
             "temperature": 0.7,
         }
@@ -400,11 +401,9 @@ Response:"""
                 {"error": "Failed to get response from AI model"}, status=500
             )
 
-        # Generator to parse and buffer partial chunks into sentence-like messages
         def stream_response():
-            buffer = ""
-            sentence_end_re = re.compile(r"[.!?]\s*")
-
+            word_buffer = ""
+            
             try:
                 for line in response.iter_lines():
                     if not line:
@@ -416,30 +415,24 @@ Response:"""
                         continue
 
                     if "response" in chunk and chunk["response"]:
-                        buffer += chunk["response"]
-
-                        # Yield chunks when we hit sentence boundaries or buffer gets long
-                        while sentence_end_re.search(buffer) or len(buffer) > 80:
-                            if sentence_end_re.search(buffer):
-                                match = sentence_end_re.search(buffer)
-                                chunk_to_send = buffer[: match.end()].strip()
-                                buffer = buffer[match.end() :].strip()
-                            else:
-                                # Find a good breaking point (space) if buffer is too long
-                                break_point = buffer.rfind(" ", 0, 80)
-                                if break_point == -1:
-                                    break_point = 80
-                                chunk_to_send = buffer[:break_point].strip()
-                                buffer = buffer[break_point:].strip()
-
-                            if chunk_to_send:
-                                yield json.dumps({"chunk": chunk_to_send}) + "\n"
+                        # Process each character
+                        for char in chunk["response"]:
+                            word_buffer += char
+                            
+                            # Send word when we hit a space or punctuation
+                            if char in [' ', '.', '!', '?', ',', ';', ':', '\n']:
+                                if word_buffer.strip():
+                                    yield json.dumps({"chunk": word_buffer}) + "\n"
+                                    word_buffer = ""
+                                    # Small delay for visual effect (optional)
+                                    time.sleep(0.1)
 
                     if chunk.get("done", False):
                         # Send any remaining buffer
-                        if buffer.strip():
-                            yield json.dumps({"chunk": buffer.strip()}) + "\n"
+                        if word_buffer.strip():
+                            yield json.dumps({"chunk": word_buffer}) + "\n"
                         break
+                        
             except Exception as stream_error:
                 yield json.dumps(
                     {"error": f"Streaming error: {str(stream_error)}"}
